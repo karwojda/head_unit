@@ -59,6 +59,6 @@ timer, trim-tension sensors) would build on.
 
 ## Recommended Next Step
 
-Run `/ws.spike` on emulation feasibility -- grvl rendering under Renode,
-plus a BLE wind value passing between two Renode nodes -- then
-`/ws.0-start` on this seed with the spike's answers.
+Spike done (2026-10-05): emulation-first is viable, BLE ESS defines the
+wind characteristics -- see `context/spike-emulation-feasibility.md`.
+Next: `/ws.0-start` on this seed with the spike as context.
