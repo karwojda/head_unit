@@ -46,7 +46,7 @@ appear on the head_unit screen.
   `wind_state_update(field, raw_u16, now_ms)`;
   `wind_state_view(now_ms) -> wind_view` (formatted fields, per-field
   valid flag, `sensor_lost`).
-- Tests read the screen from a log line written on every redraw, e.g.
+- Tests read the screen from a log line written after a frame with a changed view is handed to the display (not every frame, so the deferred log keeps up), e.g.
   `wind_ui: AWS=10.0kn AWA=45S TWS=8.2kn TWD=270 LOST=0`. Screenshots are
   saved for human review, not asserted on.
 - Robot tests drive scenarios by halting/resuming the sensor's CPU and by

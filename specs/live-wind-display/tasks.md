@@ -38,9 +38,9 @@ pattern) and read as Given/When/Then.
 
 ### Task 1 [pair]: Head_unit boots to its wind page
 
-- [ ] **Goal**: in emulation, with no sensor present, head_unit shows the wind page with all four values as "--" and the sensor-lost indicator on.
+- [~] **Goal**: in emulation, with no sensor present, head_unit shows the wind page with all four values as "--" and the sensor-lost indicator on.
 - **Focus**: west manifest pins + patches; text and icons render without the spike's defects.
-- **Touches**: `west.yml`, `zephyr/patches*`, `app/` (CMake, prj.conf, board overlay, wind state, wind UI, `romfs/` XML + fonts), `renode/head_unit.resc`, `renode/tests/boot.robot`, `ci/verify.sh`, `WHITTLESPEC.md` (verification binding), `README.md`.
+- **Touches**: `west.yml`, `zephyr/patches*`, `app/` (CMake, prj.conf, board overlays incl. `native_sim_64.overlay` for the SDL UI loop as in Antmicro's demo, wind state, wind UI, `romfs/` XML + fonts), `renode/head_unit.resc`, `renode/tests/boot.robot`, `ci/verify.sh`, `WHITTLESPEC.md` (verification binding), `README.md`.
 - **Depends on**: None
 - **Acceptance**:
   1. `west init -l` + `west update --path-cache ~/zephyrproject` + `west patch apply` fetch the pinned workspace into `~/git/head_unit-ws` -- **Demo**: `west list` shows zephyr, grvl, cmsis_6, hal_stm32, hal_nordic, mbedtls, tf-psa-crypto at the pinned revisions.
@@ -110,3 +110,6 @@ pattern) and read as Given/When/Then.
 ## Backlog (Deferred)
 
 - Signal-strength version of AC 2 -- Renode does not model RSSI; Context: test uses advertising order instead; Impact if forgotten: real-hardware ordering untested; Revisit when: hardware bring-up feature.
+- DMA2D acceleration off (`CONFIG_GRVL_USE_STM32_DMA2D=n`) -- Context: Renode's DMA2D model garbles RGB565 glyphs and throws on ARGB8888 transfers, so grvl renders in software; Impact if forgotten: slower redraws on the real board; Revisit when: hardware bring-up feature.
+- grvl does not check its framebuffer allocation -- Context: with the demo's 3.7 MB malloc arena and a 32-bit framebuffer, allocation returned NULL and grvl drew to address 0 silently; Impact if forgotten: the same silent black screen on any memory change; Revisit when: reporting upstream to grvl, or next arena/resolution change.
+- First frame shows ~3 s after grvl hands it over -- Context: in Renode the `wind_ui:` line (logged after `Swap()`) appears at ~1.4 s virtual but the LTDC shows the page only at ~4.3 s, so `boot.robot`'s 5 s bound checks the hand-over, not pixels; the review screenshot is taken 4 s later; Impact if forgotten: AC 1's "within 5 s" can be met in the log while the screen is still black; Revisit when: real hardware, or if the 5 s budget becomes crucial.

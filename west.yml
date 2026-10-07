@@ -1,0 +1,33 @@
+# head_unit workspace manifest. Pins the only Zephyr + grvl combination
+# proven to build grvl from source (Antmicro's grvl-zephyr-calendar-demo,
+# commit c6504d7), plus the Bluetooth host's crypto modules and the nRF
+# HAL. zephyr/patches.yml carries the demo's two Zephyr patches; apply
+# them with `west patch apply` after `west update`.
+#
+# Moving to a Zephyr release is a separate change -- see
+# specs/live-wind-display/plan.md.
+manifest:
+  self:
+    path: head_unit
+
+  remotes:
+    - name: zephyrproject-rtos
+      url-base: https://github.com/zephyrproject-rtos
+    - name: antmicro
+      url-base: https://github.com/antmicro
+
+  projects:
+    - name: zephyr
+      remote: zephyrproject-rtos
+      revision: 3a6406439c5a7c55e932df21df4aa290e0fb7751
+      import:
+        name-allowlist:
+          - cmsis_6
+          - hal_stm32
+          - hal_nordic
+          - mbedtls
+          - tf-psa-crypto
+    - name: grvl
+      path: modules/grvl
+      remote: antmicro
+      revision: 074bc6685f5592152e707af35684387d84196383

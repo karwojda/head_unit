@@ -1,0 +1,21 @@
+:name: head_unit
+:description: head_unit display unit (STM32H747I-DISCO + 800x480 panel) running our firmware, with the UI assets on an emulated SD card.
+:
+:Build first and set $bin and $sdcard to the build's zephyr.elf and
+:zephyr.sdcard.img -- see README.md for the full command. (No defaults:
+:Renode does not expand $ORIGIN in the SD card path.)
+
+$name ?= "head_unit"
+
+using sysbus
+mach create $name
+
+machine LoadPlatformDescription @platforms/boards/stm32h747-disco.repl
+machine SdCardFromFile $sdcard sysbus.sdmmc 0x800000 false
+
+macro reset
+"""
+    sysbus LoadELF $bin
+"""
+
+runMacro $reset

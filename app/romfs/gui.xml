@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doc>
+	<stylesheet></stylesheet>
+	<customView id="wind" backgroundColor="#FF000000">
+		<label id="awsName" text="AWS kn" font="mona12" alignment="Left" x="40" y="60" width="300" height="20" textColor="#FF9EA2A6" />
+		<label id="aws" text="--" font="mona16" alignment="Left" x="40" y="90" width="300" height="40" textColor="#FFFFFFFF" />
+		<label id="awaName" text="AWA" font="mona12" alignment="Left" x="440" y="60" width="300" height="20" textColor="#FF9EA2A6" />
+		<label id="awa" text="--" font="mona16" alignment="Left" x="440" y="90" width="300" height="40" textColor="#FFFFFFFF" />
+		<label id="twsName" text="TWS kn" font="mona12" alignment="Left" x="40" y="240" width="300" height="20" textColor="#FF9EA2A6" />
+		<label id="tws" text="--" font="mona16" alignment="Left" x="40" y="270" width="300" height="40" textColor="#FFFFFFFF" />
+		<label id="twdName" text="TWD" font="mona12" alignment="Left" x="440" y="240" width="300" height="20" textColor="#FF9EA2A6" />
+		<label id="twd" text="--" font="mona16" alignment="Left" x="440" y="270" width="300" height="40" textColor="#FFFFFFFF" />
+		<label id="sensorLost" text="SENSOR LOST" font="mona16" alignment="Left" x="40" y="400" width="400" height="40" textColor="#FFFF4040" />
+	</customView>
+</doc>
