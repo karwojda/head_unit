@@ -34,7 +34,7 @@ appear on the head_unit screen.
 |-----------|---------|
 | `west.yml` | Pins Zephyr, grvl and only the needed modules (cmsis_6, hal_stm32, hal_nordic, mbedtls, tf-psa-crypto) |
 | `app/` wind link | Connects only to `CONFIG_HEAD_UNIT_SENSOR_ADDR`, subscribes the 4 ESS wind characteristics, rescans on disconnect |
-| `app/` wind state | Pure C: latest value + receive time per field, 3 s staleness, conversions; fed over a zbus channel |
+| `app/` wind state | Pure C/C++ (no Zephyr/grvl/BT deps): latest value + receive time per field, 3 s staleness, conversions; fed over a zbus channel |
 | `app/` wind UI | grvl screen (XML on the SD-card romfs): four values, AWA dial, sensor-lost indicator |
 | `sensor_sim/` | nRF52840 ESS peripheral, fixed address from Kconfig, scripted values; apparent-only variant |
 | `renode/` | resc + robot tests with a shared bring-up keyword (windmeter's pattern) |
