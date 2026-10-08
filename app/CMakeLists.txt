@@ -10,6 +10,9 @@ target_sources(app PRIVATE
   src/wind_chan.c
 )
 
+# native_sim: wind values typed on the shell instead (no radio).
+target_sources_ifdef(CONFIG_BOARD_NATIVE_SIM app PRIVATE src/wind_shell.c)
+
 # The BLE link to the sensor, on boards with a Bluetooth controller.
 target_sources_ifdef(CONFIG_BT app PRIVATE
   src/wind_link.c

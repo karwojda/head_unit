@@ -95,6 +95,17 @@ west build -b native_sim/native/64 -d build/native_sim head_unit/app
 ROMFS_PATH=head_unit/app/romfs build/native_sim/zephyr/zephyr.exe
 ```
 
+There is no radio here: type wind values on the shell in the same
+terminal, with the sensor simulator's syntax and units (0.01 m/s, 0.01
+deg). They reach the page over `wind_chan`, the path the BLE link uses.
+
+```
+wind aws 514     # AWS 10.0
+wind awa 27000   # AWA 90P, dial needle to port
+wind tws 422     # TWS 8.2
+wind twd 500     # TWD 005
+```
+
 Needs SDL2 and a display (WSLg works). Not part of the test gate.
 
 ## Tests
