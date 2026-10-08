@@ -62,6 +62,12 @@ Needs SDL2 and a display (WSLg works). Not part of the test gate.
 
 ## Tests
 
+Everything (workspace pins, both builds, ztests, Renode scenarios):
+
+```sh
+head_unit/ci/verify.sh
+```
+
 Wind state unit tests (ztest, host):
 
 ```sh

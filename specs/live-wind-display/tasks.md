@@ -38,7 +38,7 @@ pattern) and read as Given/When/Then.
 
 ### Task 1 [pair]: Head_unit boots to its wind page
 
-- [~] **Goal**: in emulation, with no sensor present, head_unit shows the wind page with all four values as "--" and the sensor-lost indicator on.
+- [x] **Goal**: in emulation, with no sensor present, head_unit shows the wind page with all four values as "--" and the sensor-lost indicator on.
 - **Focus**: west manifest pins + patches; text and icons render without the spike's defects.
 - **Touches**: `west.yml`, `zephyr/patches*`, `app/` (CMake, prj.conf, board overlays incl. `native_sim_64.overlay` for the SDL UI loop as in Antmicro's demo, wind state, wind UI, `romfs/` XML + fonts), `renode/head_unit.resc`, `renode/tests/boot.robot`, `ci/verify.sh`, `WHITTLESPEC.md` (verification binding), `README.md`.
 - **Depends on**: None
