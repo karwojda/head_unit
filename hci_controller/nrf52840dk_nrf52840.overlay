@@ -1,0 +1,17 @@
+/*
+ * HCI controller for head_unit: Zephyr's stock samples/bluetooth/hci_uart
+ * on the nRF52840, with HCI on uart1 (wired to head_unit's uart8 in
+ * Renode) so uart0 stays the console -- as in Renode's own HCI-UART demo.
+ */
+/ {
+	chosen {
+		zephyr,bt-c2h-uart = &uart1;
+	};
+};
+
+&uart1 {
+	compatible = "nordic,nrf-uarte";
+	current-speed = <1000000>;
+	status = "okay";
+	hw-flow-control;
+};

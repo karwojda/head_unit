@@ -6,6 +6,7 @@ project(head_unit)
 target_sources(app PRIVATE
   src/main.cpp
   src/wind_state.c
+  src/wind_chan.c
 )
 
 # UI assets (gui.xml, fonts) live on the SD card, as in Antmicro's grvl

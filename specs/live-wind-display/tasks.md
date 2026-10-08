@@ -55,7 +55,7 @@ pattern) and read as Given/When/Then.
 
 ### Task 2 [pair]: See live wind from my sensor
 
-- [ ] **Goal**: with the simulated sensor running, its apparent/true wind speed and angle appear within 5 s (knots to 0.1, AWA 0-180 port/starboard, TWD 0-359, AWA dial) and each new value shows within 1 s.
+- [~] **Goal**: with the simulated sensor running, its apparent/true wind speed and angle appear within 5 s (knots to 0.1, AWA 0-180 port/starboard, TWD 0-359, AWA dial) and each new value shows within 1 s.
 - **Focus**: AC 1 timing; AC 6 conversions (5.14 m/s → 10.0 kn; 359.6 → 0; 270 → 90 port).
 - **Touches**: `app/` wind link (connect to `CONFIG_HEAD_UNIT_SENSOR_ADDR`, subscribe 4 ESS characteristics, zbus), wind state conversions, wind UI (values + dial), `sensor_sim/`, HCI controller build (`hci_uart`), `renode/` resc + `live_wind.robot`, `ci/verify.sh`, `README.md`.
 - **Depends on**: Task 1

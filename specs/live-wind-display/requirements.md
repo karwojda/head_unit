@@ -26,6 +26,7 @@ As a dinghy sailor racing inshore, I want the helm display to show live wind fro
 4. Given the connection drops, When the remembered sensor becomes available again, Then head_unit reconnects without user action.
 5. Given the sensor sends apparent wind but no true wind, Then true wind fields show "--", not 0.
 6. Given received values, Then they display converted and rounded as decided (e.g. 5.14 m/s -> 10.0 kn; apparent 359.6 deg -> 0 deg, never 360; apparent 270 deg -> 90 deg port).
+   Formats (decided 2026-10-08): speeds as the number only ("10.0"; the label carries "kn"); apparent angle 1-179 with its side ("45S", "90P"), dead ahead/astern with none ("0", "180"); true direction as a three-digit bearing ("005", "270").
 
 ### Out of scope
 

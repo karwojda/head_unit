@@ -18,9 +18,7 @@
 #include <grvl/Manager.h>
 #include <grvl/component/Label.h>
 
-extern "C" {
-#include "wind_state.h"
-}
+#include "wind_chan.h"
 
 LOG_MODULE_REGISTER(wind_ui, CONFIG_APP_LOG_LEVEL);
 
@@ -151,6 +149,8 @@ static void ui_thread(void *, void *, void *)
 
 	while (true) {
 		k_timer_start(&frame_timer, K_MSEC(FRAME_PERIOD_MS), K_NO_WAIT);
+
+		wind_chan_drain(&wind);
 
 		const struct wind_view view = wind_state_view(&wind, k_uptime_get());
 
