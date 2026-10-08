@@ -55,9 +55,9 @@ pattern) and read as Given/When/Then.
 
 ### Task 2 [pair]: See live wind from my sensor
 
-- [~] **Goal**: with the simulated sensor running, its apparent/true wind speed and angle appear within 5 s (knots to 0.1, AWA 0-180 port/starboard, TWD 0-359, AWA dial) and each new value shows within 1 s.
+- [x] **Goal**: with the simulated sensor running, its apparent/true wind speed and angle appear within 5 s (knots to 0.1, AWA 0-180 port/starboard, TWD 0-359, AWA dial) and each new value shows within 1 s.
 - **Focus**: AC 1 timing; AC 6 conversions (5.14 m/s → 10.0 kn; 359.6 → 0; 270 → 90 port).
-- **Touches**: `app/` wind link (connect to `CONFIG_HEAD_UNIT_SENSOR_ADDR`, subscribe 4 ESS characteristics, zbus), wind state conversions, wind UI (values + dial), `sensor_sim/`, HCI controller build (`hci_uart`), `renode/` resc + `live_wind.robot`, `ci/verify.sh`, `README.md`.
+- **Touches**: `app/` wind link (connect to `CONFIG_HEAD_UNIT_SENSOR_ADDR`, subscribe 4 ESS characteristics, zbus), `ess_wind` decoder, wind state conversions, wind UI (values + dial), board conf/overlay (BT over UART8), `sensor_sim/`, HCI controller build (`hci_uart` + `hci_controller/` overlay), `renode/` resc (head_unit.resc gains the controller and timing fixes) + `live_wind.robot`, `ci/verify.sh`, `README.md`.
 - **Depends on**: Task 1
 - **Acceptance**:
   1. Display, HCI controller and sensor sim run together; values appear within 5 s of start -- **Demo**: `live_wind.robot` sees `AWS=10.0kn AWA=45S TWS=… TWD=…` within 5 s virtual.
@@ -112,4 +112,7 @@ pattern) and read as Given/When/Then.
 - Signal-strength version of AC 2 -- Renode does not model RSSI; Context: test uses advertising order instead; Impact if forgotten: real-hardware ordering untested; Revisit when: hardware bring-up feature.
 - DMA2D acceleration off (`CONFIG_GRVL_USE_STM32_DMA2D=n`) -- Context: Renode's DMA2D model garbles RGB565 glyphs and throws on ARGB8888 transfers, so grvl renders in software; Impact if forgotten: slower redraws on the real board; Revisit when: hardware bring-up feature.
 - grvl does not check its framebuffer allocation -- Context: with the demo's 3.7 MB malloc arena and a 32-bit framebuffer, allocation returned NULL and grvl drew to address 0 silently; Impact if forgotten: the same silent black screen on any memory change; Revisit when: reporting upstream to grvl, or next arena/resolution change.
-- First frame shows ~3 s after grvl hands it over -- Context: in Renode the `wind_ui:` line (logged after `Swap()`) appears at ~1.4 s virtual but the LTDC shows the page only at ~4.3 s, so `boot.robot`'s 5 s bound checks the hand-over, not pixels; the review screenshot is taken 4 s later; Impact if forgotten: AC 1's "within 5 s" can be met in the log while the screen is still black; Revisit when: real hardware, or if the 5 s budget becomes crucial.
+- Renode's STM32H7 clock model -- Context: it leaves SysTick at 128 MHz while Zephyr runs the core at 400 MHz, so head_unit's time ran 3.125x slow (this also made the first frame look ~3 s late); `head_unit.resc` sets 400 MHz once the SysTick driver starts, and 400 MIPS; Impact if forgotten: removing the hook silently breaks every timing check; Revisit when: a Renode upgrade, or reporting it upstream.
+- Sensor sim's boot-time log lines are lost -- Context: in immediate mode, lines logged before the shell owns the console (incl. any <err> during Bluetooth start-up) never appear, so the failing pattern can't see them; Impact if forgotten: a sim that fails to start shows up only as "no prompt"/no values; Revisit when: Task 3/4 sim variants.
+- `<wrn> bt_hci_core: Num of Controller's ACL packets != ACL bt_conn_tx contexts (7 != 3)` on head_unit -- Context: harmless mismatch with the controller's buffer count; Impact if forgotten: noise in the log; Revisit when: tuning BT buffers for real hardware.
+- grvl prints int64 font counts with %ld -- Context: on 32-bit ARM its font log shows "0 glyphs, 191 kernings" though fonts load fine; Impact if forgotten: misleading logs; Revisit when: reporting upstream to grvl.

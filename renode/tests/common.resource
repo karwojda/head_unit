@@ -155,10 +155,9 @@ AWA, TWS And TWD Still Show "${awa}", "${tws}" And "${twd}"
 
 The Wind Page Is Drawn Within 5 Seconds
     Wait For Line On Uart     wind_ui:    timeout=5    testerId=${HU}
-    # Screenshot is for human review only. The LTDC shows the first frame
-    # ~3 s after grvl hands it over (see tasks.md backlog), so let the
-    # page settle first; the failing pattern still guards these 4 s.
-    Execute Command           emulation RunFor "4"
+    # Screenshot is for human review only; let the page settle for a
+    # second. The failing pattern still guards it.
+    Execute Command           emulation RunFor "1"
     Execute Command           save_screenshot "${OUTPUT_DIR}/wind_page_${TEST_NAME}.png"
 
 Head_unit Reports No Fault
@@ -180,3 +179,19 @@ It Names The SD Card Image The Emulation Loads
 
 It Names The Emulation Script That These Scenarios Start
     Should Contain            ${README_TEXT}    renode/head_unit.resc
+
+It Names The Command That Builds The Sensor Simulator
+    Should Match Regexp       ${README_TEXT}    west build [^\\n]*-b nrf52840dk/nrf52840[^\\n]*\\bsensor_sim\\b
+
+It Names The Command That Builds The HCI Controller
+    Should Match Regexp       ${README_TEXT}    west build [^\\n]*-b nrf52840dk/nrf52840[^\\n]*\\bhci_uart\\b
+
+It Names The Emulation Script That Runs Head_unit With The Sensor
+    Should Contain            ${README_TEXT}    renode/live_wind.resc
+
+It Records The Combined Emulation's RAM Use In KB And Its Real-Time Speed
+    # Figures are measured by hand (task AC 4); this checks they are there
+    # in a fixed form, not that they are current.
+    Should Match Regexp       ${README_TEXT}    head_unit RAM: \\d+ KB
+    Should Match Regexp       ${README_TEXT}    real-time speed: \\d+(\\.\\d+)?x
+

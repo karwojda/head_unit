@@ -17,7 +17,9 @@
 #include <grvl/grvl.h>
 #include <grvl/Manager.h>
 #include <grvl/component/Label.h>
+#include <grvl/container/CustomView.h>
 
+#include "awa_dial.h"
 #include "wind_chan.h"
 
 LOG_MODULE_REGISTER(wind_ui, CONFIG_APP_LOG_LEVEL);
@@ -101,8 +103,9 @@ static void load_fonts(const fs::path &romfs, grvl::Manager &manager)
 	manager.AddFontToFontContainer("mona16", font("fonts/mona16.gbf"));
 }
 
-static void show(grvl::AbstractView &page, const struct wind_view &view)
+static void show(grvl::AbstractView &page, AwaDial &dial, const struct wind_view &view)
 {
+	dial.Show(view.awa_dial);
 	for (int i = 0; i < WIND_FIELD_COUNT; i++) {
 		auto label = static_cast<grvl::Label *>(page.GetElement(field_label_ids[i]));
 
@@ -146,6 +149,10 @@ static void ui_thread(void *, void *, void *)
 	manager.SetActiveScreen("wind", 0);
 
 	auto &page = *manager.GetActiveScreen();
+	/* Bottom right, clear of the values and the sensor-lost label. */
+	auto *dial = new AwaDial(600, 310, 160);
+
+	static_cast<grvl::CustomView &>(page).AddElement(dial);
 
 	while (true) {
 		k_timer_start(&frame_timer, K_MSEC(FRAME_PERIOD_MS), K_NO_WAIT);
@@ -154,7 +161,7 @@ static void ui_thread(void *, void *, void *)
 
 		const struct wind_view view = wind_state_view(&wind, k_uptime_get());
 
-		show(page, view);
+		show(page, *dial, view);
 		app.Render();
 		app.Swap();
 		log_if_changed(view);

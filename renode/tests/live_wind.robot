@@ -46,8 +46,7 @@ Operator docs explain how to start the live wind emulation
     ...    operator's entry point; checks it names what these scenarios
     ...    actually run, so it can't drift. Does NOT check that the
     ...    recorded figures are current (measured by hand, AC 4).
-    [Tags]    docs    todo
-    Skip    TODO: steps defined in ws.bdd.red
+    [Tags]    docs
     Given the head_unit README
     Then it names the command that builds the sensor simulator
     And it names the command that builds the HCI controller

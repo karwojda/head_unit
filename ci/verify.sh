@@ -47,6 +47,18 @@ done
 step "Build firmware (stm32h747i_disco/stm32h747xx/m7)"
 west build -p auto -b stm32h747i_disco/stm32h747xx/m7 -d build/head_unit head_unit/app
 
+# The nRF52840 images leave the grvl module out (it needs C++).
+nrf_modules="$ws/modules/hal/cmsis_6;$ws/modules/hal/nordic;$ws/modules/crypto/mbedtls;$ws/modules/crypto/tf-psa-crypto"
+
+step "Build BLE controller (hci_uart, nrf52840dk/nrf52840)"
+west build -p auto -b nrf52840dk/nrf52840 -d build/hci_uart zephyr/samples/bluetooth/hci_uart -- \
+	-DEXTRA_DTC_OVERLAY_FILE="$repo/hci_controller/nrf52840dk_nrf52840.overlay" \
+	"-DZEPHYR_MODULES=$nrf_modules"
+
+step "Build sensor simulator (nrf52840dk/nrf52840)"
+west build -p auto -b nrf52840dk/nrf52840 -d build/sensor_sim head_unit/sensor_sim -- \
+	"-DZEPHYR_MODULES=$nrf_modules"
+
 step "Build native_sim UI"
 west build -p auto -b native_sim/native/64 -d build/native_sim head_unit/app
 
@@ -57,8 +69,10 @@ grep -q "PROJECT EXECUTION SUCCESSFUL" build/ztest.log ||
 	fail "wind state ztests"
 
 step "Renode scenarios"
-"$renode_dir/renode-test" -r build/robot \
-	--variable "HEAD_UNIT_WS:$ws" \
-	head_unit/renode/tests/*.robot || fail "Renode scenarios (see build/robot/log.html)"
+# renode-test writes its results (log.html, screenshots) to the current
+# directory whatever -r says, so run it from build/robot.
+mkdir -p build/robot
+(cd build/robot && "$renode_dir/renode-test" --variable "HEAD_UNIT_WS:$ws" \
+	"$repo"/renode/tests/*.robot) || fail "Renode scenarios (see build/robot/log.html)"
 
 printf '\nAll checks passed.\n'

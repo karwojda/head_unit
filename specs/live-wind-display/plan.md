@@ -33,11 +33,11 @@ appear on the head_unit screen.
 | Component | Purpose |
 |-----------|---------|
 | `west.yml` | Pins Zephyr, grvl and only the needed modules (cmsis_6, hal_stm32, hal_nordic, mbedtls, tf-psa-crypto) |
-| `app/` wind link | Connects only to `CONFIG_HEAD_UNIT_SENSOR_ADDR`, subscribes the 4 ESS wind characteristics, rescans on disconnect |
+| `app/` wind link | Connects only to `CONFIG_HEAD_UNIT_SENSOR_ADDR`, subscribes the 4 ESS wind characteristics one at a time, rescans on disconnect; notifications decoded by `ess_wind` (pure C: UUID -> field, uint16 LE, malformed vs not-wind) and published on the `wind_chan` zbus channel |
 | `app/` wind state | Pure C/C++ (no Zephyr/grvl/BT deps): latest value + receive time per field, 3 s staleness, conversions; fed over a zbus channel |
-| `app/` wind UI | grvl screen (XML on the SD-card romfs): four values, AWA dial, sensor-lost indicator |
+| `app/` wind UI | grvl screen (XML on the SD-card romfs): four values, sensor-lost indicator; AWA dial is a C++ `grvl::Canvas` added in code (grvl's XML has no custom components) |
 | `sensor_sim/` | nRF52840 ESS peripheral, fixed address from Kconfig, scripted values; apparent-only variant |
-| `renode/` | resc + robot tests with a shared bring-up keyword (windmeter's pattern) |
+| `renode/` | `head_unit.resc` (head_unit + its nRF52840 HCI controller; corrects Renode's SysTick to 400 MHz and the CPU to 400 MIPS), `live_wind.resc` (+ sensor sim); robot tests with a shared bring-up keyword (windmeter's pattern) |
 | `ci/verify.sh` | Builds all images, runs unit tests and Renode tests -- the verification binding |
 
 ## Interfaces
@@ -45,12 +45,16 @@ appear on the head_unit screen.
 - Wind state, ztest-tested on `native_sim/native/64` (no display):
   `wind_state_update(field, raw_u16, now_ms)`;
   `wind_state_view(now_ms) -> wind_view` (formatted fields, per-field
-  valid flag, `sensor_lost`).
-- Tests read the screen from a log line written after a frame with a changed view is handed to the display (not every frame, so the deferred log keeps up), e.g.
+  valid flag, `awa_dial` angle clockwise from the bow, `sensor_lost`).
+  Directions >= 360.00 deg are rejected with -EINVAL.
+- Tests read the screen from a log line written after a frame with a changed view is handed to the display (not every frame), e.g.
   `wind_ui: AWS=10.0kn AWA=45S TWS=8.2kn TWD=270 LOST=0`. Screenshots are
   saved for human review, not asserted on.
-- Robot tests drive scenarios by halting/resuming the sensor's CPU and by
-  choosing which sensor images run (foreign sensor, apparent-only).
+- Robot tests drive scenarios by halting/resuming the sensor's CPU, by
+  choosing which sensor images run (foreign sensor, apparent-only), and by
+  setting the sensor's values on its console (`wind aws 514`; it logs
+  `sensor_sim: sent AWS=514` for each notification). head_unit and the
+  sensor log immediately, so console timestamps are when things happen.
 
 ## Risks
 
