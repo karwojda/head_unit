@@ -1,0 +1,13 @@
+source "Kconfig.zephyr"
+
+menu "Sensor simulator"
+
+config SENSOR_SIM_ADDR
+	string "Bluetooth address"
+	default "C0:FF:EE:00:00:01"
+	help
+	  Static random address the simulated sensor advertises from, so
+	  head_unit can tell it from other sensors (Renode gives every
+	  nRF52840 the same default address).
+
+endmenu

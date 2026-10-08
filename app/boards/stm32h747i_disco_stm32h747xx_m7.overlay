@@ -102,3 +102,20 @@
 		screen-height = <480>;
 	};
 };
+
+/* BLE controller (nRF52840 running hci_uart) on UART8, H:4. */
+/ {
+	chosen {
+		zephyr,bt-hci = &bt_hci_uart;
+	};
+};
+
+&uart8 {
+	status = "okay";
+	current-speed = <1000000>;
+
+	bt_hci_uart: bt_hci_uart {
+		compatible = "zephyr,bt-hci-uart";
+		status = "okay";
+	};
+};

@@ -1,21 +1,54 @@
 :name: head_unit
-:description: head_unit display unit (STM32H747I-DISCO + 800x480 panel) running our firmware, with the UI assets on an emulated SD card.
+:description: head_unit (STM32H747I-DISCO + 800x480 panel) running our firmware, with the UI assets on an emulated SD card and its BLE radio: an nRF52840 running Zephyr's hci_uart, over HCI-UART.
 :
-:Build first and set $bin and $sdcard to the build's zephyr.elf and
-:zephyr.sdcard.img -- see README.md for the full command. (No defaults:
-:Renode does not expand $ORIGIN in the SD card path.)
+:Build first and set $bin, $sdcard (head_unit's zephyr.elf and
+:zephyr.sdcard.img) and $hci_bin (build/hci_uart/zephyr/zephyr.elf) -- see
+:README.md for the full commands. (No defaults: Renode does not expand
+:$ORIGIN in the SD card path.)
+:
+:head_unit's CPU is held until the controller has had 1 s to set up its
+:UART, as in Renode's own HCI-UART demo; `runMacro $power_on_head_unit`
+:releases it. No sensor here -- live_wind.resc adds one.
 
-$name ?= "head_unit"
+emulation CreateUARTHub "hci"
+emulation CreateBLEMedium "wireless"
+
+# BLE needs frequent synchronisation between machines.
+emulation SetGlobalQuantum "0.00001"
 
 using sysbus
-mach create $name
 
+mach create "controller"
+machine LoadPlatformDescription @platforms/boards/nrf52840dk_nrf52840.repl
+connector Connect sysbus.radio wireless
+connector Connect sysbus.uart1 hci
+sysbus LoadELF $hci_bin
+
+mach create "head_unit"
 machine LoadPlatformDescription @platforms/boards/stm32h747-disco.repl
 machine SdCardFromFile $sdcard sysbus.sdmmc 0x800000 false
+connector Connect sysbus.uart8 hci
 
-macro reset
+# Match the real board's timing (Renode model gaps):
+# - Renode's RCC model leaves SysTick at 128 MHz although Zephyr runs the
+#   core at 400 MHz from the PLL, so uptime, timers and timeouts ran
+#   3.125x slow. Set 400 MHz once the SysTick driver starts, after the
+#   clocks are configured.
+# - The CPU model defaults to 100 MIPS; the 400 MHz Cortex-M7 does about
+#   400, which sets how long grvl's software rendering takes.
+cpu PerformanceInMips 400
+
+set systick_at_400mhz
 """
-    sysbus LoadELF $bin
+machine["sysbus.nvic"].Frequency = 400000000
 """
 
-runMacro $reset
+sysbus LoadELF $bin
+cpu AddHook `sysbus GetSymbolAddress "sys_clock_driver_init"` $systick_at_400mhz
+cpu IsHalted true
+
+macro power_on_head_unit
+"""
+    mach set "head_unit"
+    cpu IsHalted false
+"""

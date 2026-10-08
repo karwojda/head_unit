@@ -2,6 +2,14 @@ source "Kconfig.zephyr"
 
 menu "Application Options"
 
+config HEAD_UNIT_SENSOR_ADDR
+	string "Remembered wind sensor address"
+	default "C0:FF:EE:00:00:01"
+	help
+	  Bluetooth address (static random) of the one wind sensor head_unit
+	  connects to; every other sensor is ignored. Set at build time this
+	  cycle; an on-screen pairing list comes later.
+
 module = APP
 module-str = App
 source "subsys/logging/Kconfig.template.log_config"

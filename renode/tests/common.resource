@@ -36,15 +36,17 @@ ${NO_WIND_LINE}       wind_ui: AWS=-- AWA=-- TWS=-- TWD=-- LOST=1
 # --- Bring-up ---
 
 No Wind Sensor Is In Range
-    # Only the head_unit machine exists: no BLE controller, no sensor.
+    # head_unit and its BLE radio; nothing to hear.
+    File Should Exist         ${HCI_ELF}       HCI controller not built (see README)
     Execute Command           $bin=@${ELF}
     Execute Command           $sdcard=@${SDCARD}
+    Execute Command           $hci_bin=@${HCI_ELF}
     Execute Command           include @${RESC}
     Execute Command           include @${SCREENSHOT}
     Head_unit Console Is Watched
     Set Test Variable         ${SENSOR}    ${None}
     ${machines}=              Execute Command    emulation MachinesCount
-    Should Be Equal As Integers    ${machines}    1
+    Should Be Equal As Integers    ${machines}    2
 
 My Wind Sensor Is In Range Sending Apparent Wind ${aws} m/s From ${awa} Degrees And True Wind ${tws} m/s From ${twd} Degrees
     # head_unit, its BLE controller and the sensor, on one BLE medium.
@@ -73,25 +75,25 @@ Head_unit Console Is Watched
     Set Test Variable         ${HU}    ${hu}
 
 Head_unit Starts
-    IF    $SENSOR is None
-        Set Test Variable     ${POWERED_ON_MS}    ${0}
-        Start Emulation
-    ELSE
-        # The sensor is already sending when head_unit is switched on, and
-        # the controller has had 1 s to set up its UART (live_wind.resc).
+    # Any sensor is already sending when head_unit is switched on, and the
+    # BLE controller has had 1 s to set up its UART (head_unit.resc).
+    IF    $SENSOR is not None
         Wait For Prompt On Uart    ${SENSOR_PROMPT}    testerId=${SENSOR}    timeout=2
         FOR    ${field}    ${raw}    IN    &{SENSOR_VALUES}
             The Sensor Is Set To    ${field}    ${raw}
         END
-        ${now}=               Virtual Time In Ms
-        IF    ${now} < 1000
-            Execute Command   emulation RunFor "${{ (1000 - $now) / 1000 }}"
-        END
-        Execute Command       runMacro $power_on_head_unit
-        ${on}=                Virtual Time In Ms
-        Set Test Variable     ${POWERED_ON_MS}    ${on}
-        Start Emulation
     END
+    ${now}=                   Virtual Time In Ms
+    IF    ${now} < 1000
+        Execute Command       emulation RunFor "${{ (1000 - $now) / 1000 }}"
+    END
+    # What head_unit.resc's power_on_head_unit macro does (Renode does not
+    # carry macros out of a nested include, so live_wind.resc lacks it).
+    Execute Command           mach set "head_unit"
+    Execute Command           cpu IsHalted false
+    ${on}=                    Virtual Time In Ms
+    Set Test Variable         ${POWERED_ON_MS}    ${on}
+    Start Emulation
 
 The Sensor Is Set To
     [Arguments]               ${field}    ${raw}

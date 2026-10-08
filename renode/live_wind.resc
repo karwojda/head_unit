@@ -1,38 +1,12 @@
 :name: head_unit live wind
-:description: head_unit (STM32H747I-DISCO) with its BLE radio (nRF52840 running Zephyr's hci_uart over HCI-UART) and the simulated wind sensor (nRF52840), on one BLE medium.
+:description: head_unit with its BLE radio (head_unit.resc) and the simulated wind sensor (nRF52840), on one BLE medium.
 :
-:Set $bin and $sdcard (head_unit, as for head_unit.resc), $hci_bin
-:(build/hci_uart/zephyr/zephyr.elf) and $sensor_bin
+:Set $bin, $sdcard and $hci_bin as for head_unit.resc, and $sensor_bin
 :(build/sensor_sim/zephyr/zephyr.elf) -- see README.md.
-:
-:head_unit's CPU is held until the controller has had 1 s to set up its
-:UART, as in Renode's own HCI-UART demo; call `power_on_head_unit` to
-:release it.
 
-emulation CreateUARTHub "hci"
-emulation CreateBLEMedium "wireless"
-
-# BLE needs frequent synchronisation between machines.
-emulation SetGlobalQuantum "0.00001"
-
-$name = "head_unit"
 include $ORIGIN/head_unit.resc
-connector Connect sysbus.uart8 hci
-cpu IsHalted true
-
-mach create "controller"
-machine LoadPlatformDescription @platforms/boards/nrf52840dk_nrf52840.repl
-connector Connect sysbus.radio wireless
-connector Connect sysbus.uart1 hci
-sysbus LoadELF $hci_bin
 
 mach create "sensor"
 machine LoadPlatformDescription @platforms/boards/nrf52840dk_nrf52840.repl
 connector Connect sysbus.radio wireless
 sysbus LoadELF $sensor_bin
-
-macro power_on_head_unit
-"""
-    mach set "head_unit"
-    cpu IsHalted false
-"""

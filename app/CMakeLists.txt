@@ -9,6 +9,12 @@ target_sources(app PRIVATE
   src/wind_chan.c
 )
 
+# The BLE link to the sensor, on boards with a Bluetooth controller.
+target_sources_ifdef(CONFIG_BT app PRIVATE
+  src/wind_link.c
+  src/ess_wind.c
+)
+
 # UI assets (gui.xml, fonts) live on the SD card, as in Antmicro's grvl
 # demo: build an ext2 image from romfs/ next to zephyr.elf.
 if(CONFIG_SDCARD_IMAGE)
